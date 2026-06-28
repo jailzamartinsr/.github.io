@@ -1,6 +1,6 @@
 const WORKOUTS = {
   upperA: {
-    name: "Upper A",
+    name: "Supeior A",
     exercises: [
       "Puxada frente",
       "Supino máquina",
@@ -12,7 +12,7 @@ const WORKOUTS = {
     ],
   },
   lowerA: {
-    name: "Lower A",
+    name: "Inferior A",
     exercises: [
       "Hack",
       "Leg Press",
@@ -24,7 +24,7 @@ const WORKOUTS = {
     ],
   },
   upperB: {
-    name: "Upper B",
+    name: "Superior B",
     exercises: [
       "Remada máquina",
       "Puxada supinada",
@@ -36,7 +36,7 @@ const WORKOUTS = {
     ],
   },
   lowerB: {
-    name: "Lower B",
+    name: "Inferior B",
     exercises: [
       "Stiff",
       "Cadeira Flexora",
