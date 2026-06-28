@@ -54,7 +54,6 @@ const SETS = [
   { key: "feeder", label: "Interm.", target: "6" },
   { key: "work1", label: "Trab. 1", target: "8-10" },
   { key: "work2", label: "Trab. 2", target: "8-10" },
-  { key: "work3", label: "Trab. 3", target: "8-10" },
 ];
 
 const STORAGE_KEY = "treino-upper-lower-v1";
@@ -156,7 +155,7 @@ function renderWorkout() {
     card.dataset.exercise = exerciseName;
     fragment.querySelector(".exercise-name").textContent = exerciseName;
     fragment.querySelector(".exercise-structure").textContent =
-      "1x12 leve + 1x6 intermediária + 3x8-10 trabalho";
+      "1x12 leve + 1x6 intermediária + 2x8-10 trabalho";
 
     SETS.forEach((set) => {
       const row = document.createElement("div");
