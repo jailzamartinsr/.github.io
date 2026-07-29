@@ -63,6 +63,11 @@ const WORKOUT_ORDER = ["upperA", "lowerA", "upperB", "lowerB"];
 const state = {
   workoutKey: "upperA",
   records: loadRecords(),
+  focusIndex: 0,
+  sessionTiming: {
+    startedAt: null,
+    endedAt: null,
+  },
 };
 
 const els = {
@@ -71,6 +76,16 @@ const els = {
   sessionFeeling: document.querySelector("#sessionFeeling"),
   sessionNotes: document.querySelector("#sessionNotes"),
   reportName: document.querySelector("#reportName"),
+  startTimeMetric: document.querySelector("#startTimeMetric"),
+  endTimeMetric: document.querySelector("#endTimeMetric"),
+  durationMetric: document.querySelector("#durationMetric"),
+  startWorkoutTimer: document.querySelector("#startWorkoutTimer"),
+  finishWorkoutTimer: document.querySelector("#finishWorkoutTimer"),
+  focusPanel: document.querySelector("#focusPanel"),
+  focusCounter: document.querySelector("#focusCounter"),
+  focusExerciseName: document.querySelector("#focusExerciseName"),
+  previousExercise: document.querySelector("#previousExercise"),
+  nextExercise: document.querySelector("#nextExercise"),
   lastWorkoutName: document.querySelector("#lastWorkoutName"),
   nextWorkoutName: document.querySelector("#nextWorkoutName"),
   saveSession: document.querySelector("#saveSession"),
@@ -91,6 +106,7 @@ const els = {
 };
 
 let deferredInstallPrompt = null;
+let timerInterval = null;
 
 init();
 
@@ -102,6 +118,7 @@ function init() {
   renderSequence();
   renderHistory();
   renderCharts();
+  renderTimer();
   updateSummary();
   registerServiceWorker();
 }
@@ -111,10 +128,12 @@ function bindEvents() {
     button.addEventListener("click", () => {
       saveDraft();
       state.workoutKey = button.dataset.workout;
+      state.focusIndex = 0;
       document.querySelectorAll("[data-workout]").forEach((item) => {
         item.classList.toggle("is-active", item === button);
       });
       renderWorkout();
+      renderFocusMode();
       els.workoutChartSelect.value = state.workoutKey;
       renderCharts();
       updateSummary();
@@ -140,6 +159,10 @@ function bindEvents() {
 
   els.saveSession.addEventListener("click", saveSession);
   els.clearCurrent.addEventListener("click", clearCurrentScreen);
+  els.startWorkoutTimer.addEventListener("click", startWorkoutTimer);
+  els.finishWorkoutTimer.addEventListener("click", finishWorkoutTimer);
+  els.previousExercise.addEventListener("click", () => moveFocusExercise(-1));
+  els.nextExercise.addEventListener("click", () => moveFocusExercise(1));
   els.exportDailyReport.addEventListener("click", exportDailyReport);
   els.exportCsv.addEventListener("click", exportCsv);
   els.workoutChartSelect.addEventListener("change", renderVolumeChart);
@@ -198,6 +221,98 @@ function renderWorkout() {
   });
 
   restoreWorkoutDraft();
+  renderFocusMode();
+}
+
+function startWorkoutTimer() {
+  state.sessionTiming.startedAt = new Date().toISOString();
+  state.sessionTiming.endedAt = null;
+  state.focusIndex = 0;
+  startTimerInterval();
+  renderTimer();
+  renderFocusMode();
+  openFocusedExercise();
+  saveDraft();
+}
+
+function finishWorkoutTimer() {
+  if (!state.sessionTiming.startedAt) {
+    alert("Inicie o treino antes de finalizar.");
+    return;
+  }
+
+  state.sessionTiming.endedAt = new Date().toISOString();
+  stopTimerInterval();
+  renderTimer();
+  renderFocusMode();
+  saveDraft();
+}
+
+function moveFocusExercise(direction) {
+  const exercises = WORKOUTS[state.workoutKey].exercises;
+  if (!state.sessionTiming.startedAt || !exercises.length) return;
+
+  state.focusIndex = Math.min(Math.max(state.focusIndex + direction, 0), exercises.length - 1);
+  renderFocusMode();
+  openFocusedExercise();
+  saveDraft();
+}
+
+function renderTimer() {
+  const { startedAt, endedAt } = state.sessionTiming;
+  els.startTimeMetric.textContent = startedAt ? formatTime(startedAt) : "-";
+  els.endTimeMetric.textContent = endedAt ? formatTime(endedAt) : "-";
+  els.durationMetric.textContent = startedAt ? formatDuration(getSessionDurationMs()) : "00:00";
+  els.startWorkoutTimer.textContent = startedAt && !endedAt ? "Reiniciar" : "Start treino";
+  els.finishWorkoutTimer.disabled = !startedAt || Boolean(endedAt);
+
+  if (startedAt && !endedAt) {
+    startTimerInterval();
+  }
+}
+
+function renderFocusMode() {
+  const isActive = Boolean(state.sessionTiming.startedAt) && !state.sessionTiming.endedAt;
+  const exercises = WORKOUTS[state.workoutKey].exercises;
+  const currentName = exercises[state.focusIndex] || exercises[0] || "-";
+
+  els.focusPanel.classList.toggle("is-hidden", !isActive);
+  els.focusCounter.textContent = `Exercício ${Math.min(state.focusIndex + 1, exercises.length)} de ${exercises.length}`;
+  els.focusExerciseName.textContent = currentName;
+  els.previousExercise.disabled = state.focusIndex <= 0;
+  els.nextExercise.disabled = state.focusIndex >= exercises.length - 1;
+
+  [...els.exerciseList.querySelectorAll(".exercise-card")].forEach((card, index) => {
+    card.classList.toggle("is-focus-hidden", isActive && index !== state.focusIndex);
+    if (isActive && index === state.focusIndex) {
+      card.classList.remove("is-collapsed");
+      card.querySelector(".exercise-header").setAttribute("aria-expanded", "true");
+    }
+  });
+}
+
+function openFocusedExercise() {
+  const card = els.exerciseList.querySelectorAll(".exercise-card")[state.focusIndex];
+  if (!card) return;
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function startTimerInterval() {
+  if (timerInterval) return;
+  timerInterval = setInterval(renderTimer, 1000);
+}
+
+function stopTimerInterval() {
+  if (!timerInterval) return;
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function getSessionDurationMs() {
+  const { startedAt, endedAt } = state.sessionTiming;
+  if (!startedAt) return 0;
+  const end = endedAt ? new Date(endedAt) : new Date();
+  return Math.max(0, end.getTime() - new Date(startedAt).getTime());
 }
 
 function collectSession() {
@@ -228,6 +343,9 @@ function collectSession() {
     feeling: els.sessionFeeling.value,
     notes: els.sessionNotes.value.trim(),
     exercises,
+    startedAt: state.sessionTiming.startedAt,
+    endedAt: state.sessionTiming.endedAt,
+    durationSeconds: Math.round(getSessionDurationMs() / 1000),
     savedAt: new Date().toISOString(),
   };
 }
@@ -246,6 +364,10 @@ function saveSession() {
   state.records.unshift(session);
   persistRecords();
   localStorage.removeItem(DRAFT_KEY);
+  state.sessionTiming = { startedAt: null, endedAt: null };
+  stopTimerInterval();
+  renderTimer();
+  renderFocusMode();
   renderSequence();
   renderHistory();
   renderCharts();
@@ -259,6 +381,11 @@ function clearCurrentScreen() {
   });
   els.sessionNotes.value = "";
   els.sessionFeeling.value = "normal";
+  state.sessionTiming = { startedAt: null, endedAt: null };
+  state.focusIndex = 0;
+  stopTimerInterval();
+  renderTimer();
+  renderFocusMode();
   saveDraft();
   updateSummary();
 }
@@ -313,7 +440,7 @@ function renderHistory() {
     item.innerHTML = `
       <div>
         <strong>${formatDate(record.date)} · ${record.workoutName}</strong>
-        <small>${formatNumber(volume)} kg de volume · sensação ${record.feeling}</small>
+        <small>${formatNumber(volume)} kg de volume · sensação ${record.feeling}${record.durationSeconds ? ` · ${formatDuration(record.durationSeconds * 1000)}` : ""}</small>
       </div>
       <div class="history-actions">
         <button class="small-action" type="button" data-action="rename" aria-label="Editar nome do treino">Editar</button>
@@ -766,11 +893,14 @@ function buildDailyReportWorkbookData(reportTitle, reportDate, sessions) {
   ];
 
   const treinoRows = [
-    ["Data", "Treino", "Sensação", "Volume kg", "Observação"],
+    ["Data", "Treino", "Sensação", "Início", "Fim", "Duração", "Volume kg", "Observação"],
     ...sessions.map((session) => [
       formatDate(session.date),
       session.workoutName,
       session.feeling,
+      session.startedAt ? formatTime(session.startedAt) : "",
+      session.endedAt ? formatTime(session.endedAt) : "",
+      session.durationSeconds ? formatDuration(session.durationSeconds * 1000) : "",
       calculateRecordVolume(session),
       session.notes || "",
     ]),
@@ -1040,6 +1170,8 @@ function trimSheetName(value) {
 function saveDraft() {
   const draft = collectSession();
   draft.reportName = els.reportName.value.trim();
+  draft.focusIndex = state.focusIndex;
+  draft.sessionTiming = state.sessionTiming;
   localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
 }
 
@@ -1059,6 +1191,8 @@ function loadDraft() {
     els.sessionFeeling.value = draft.feeling || "normal";
     els.sessionNotes.value = draft.notes || "";
     els.reportName.value = draft.reportName || "";
+    state.focusIndex = Number.isInteger(draft.focusIndex) ? draft.focusIndex : 0;
+    state.sessionTiming = draft.sessionTiming || { startedAt: null, endedAt: null };
   } catch {
     localStorage.removeItem(DRAFT_KEY);
   }
@@ -1214,6 +1348,25 @@ function formatDate(dateString) {
   if (!dateString) return "-";
   const [year, month, day] = dateString.split("-");
   return `${day}/${month}/${year}`;
+}
+
+function formatTime(dateString) {
+  if (!dateString) return "-";
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(dateString));
+}
+
+function formatDuration(milliseconds) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function formatShortDate(dateString) {

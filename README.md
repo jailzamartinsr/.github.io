@@ -27,3 +27,7 @@ O app usa o histórico salvo no navegador para mostrar:
 ## Relatório do dia
 
 O botão `Relatório do dia` exporta uma planilha `.xlsx` apenas com a data selecionada no app. O nome do arquivo pode ser editado no campo `Nome do relatório`.
+
+## Modo treino
+
+O botão `Start treino` registra o horário de início, mostra a duração e foca em um exercício por vez com navegação por setas. Ao finalizar, o app registra o horário de fim e salva a duração junto com o treino.

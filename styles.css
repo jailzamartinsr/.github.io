@@ -37,6 +37,11 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .app-shell {
   width: min(760px, 100%);
   margin: 0 auto;
@@ -140,6 +145,8 @@ h2 {
 .exercise-card,
 .summary-panel,
 .sequence-panel,
+.timer-panel,
+.focus-panel,
 .history {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -246,6 +253,82 @@ textarea:focus {
 .guidance span {
   font-size: 0.88rem;
   line-height: 1.35;
+}
+
+.timer-panel {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 12px;
+}
+
+.timer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.timer-grid div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.timer-grid strong {
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+}
+
+.timer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.focus-panel {
+  display: grid;
+  grid-template-columns: 46px 1fr 46px;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0;
+  padding: 10px;
+}
+
+.focus-panel.is-hidden {
+  display: none;
+}
+
+.focus-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--soft);
+  text-align: center;
+}
+
+.focus-main strong {
+  overflow-wrap: anywhere;
+  font-size: 1.08rem;
+}
+
+.nav-button {
+  width: 46px;
+  height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--accent-strong);
+  font-size: 1.7rem;
+  font-weight: 900;
+}
+
+.exercise-card.is-focus-hidden {
+  display: none;
 }
 
 .exercise-list {
@@ -619,6 +702,8 @@ textarea:focus {
 
   .session-meta,
   .sequence-status,
+  .timer-grid,
+  .timer-actions,
   .actions,
   .summary-panel {
     grid-template-columns: 1fr;

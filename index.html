@@ -80,6 +80,36 @@
           </div>
         </section>
 
+        <section class="timer-panel" aria-label="Tempo do treino">
+          <div class="timer-grid">
+            <div>
+              <span class="metric-label">Início</span>
+              <strong id="startTimeMetric">-</strong>
+            </div>
+            <div>
+              <span class="metric-label">Fim</span>
+              <strong id="endTimeMetric">-</strong>
+            </div>
+            <div>
+              <span class="metric-label">Tempo</span>
+              <strong id="durationMetric">00:00</strong>
+            </div>
+          </div>
+          <div class="timer-actions">
+            <button class="primary" id="startWorkoutTimer" type="button">Start treino</button>
+            <button class="secondary" id="finishWorkoutTimer" type="button">Finalizar</button>
+          </div>
+        </section>
+
+        <section class="focus-panel is-hidden" id="focusPanel" aria-label="Exercício atual">
+          <button class="nav-button" id="previousExercise" type="button" aria-label="Exercício anterior">‹</button>
+          <div class="focus-main">
+            <span class="metric-label" id="focusCounter">Exercício</span>
+            <strong id="focusExerciseName">-</strong>
+          </div>
+          <button class="nav-button" id="nextExercise" type="button" aria-label="Próximo exercício">›</button>
+        </section>
+
         <section class="exercise-list" id="exerciseList" aria-label="Exercícios"></section>
 
         <section class="actions">
