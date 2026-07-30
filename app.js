@@ -116,6 +116,7 @@ function init() {
   renderWorkout();
   renderSequence();
   renderHistory();
+  setHistoryPanel(false);
   renderCharts();
   renderTimer();
   updateSummary();
@@ -472,10 +473,13 @@ function renderHistory() {
 }
 
 function toggleHistoryPanel() {
-  const shouldOpen = els.historyContent.hidden;
-  els.historyContent.hidden = !shouldOpen;
-  els.toggleHistory.setAttribute("aria-expanded", String(shouldOpen));
-  els.toggleHistory.textContent = shouldOpen ? "Ocultar" : "Ver histórico";
+  setHistoryPanel(els.historyContent.hidden);
+}
+
+function setHistoryPanel(isOpen) {
+  els.historyContent.hidden = !isOpen;
+  els.toggleHistory.setAttribute("aria-expanded", String(isOpen));
+  els.toggleHistory.textContent = isOpen ? "Ocultar" : "Ver histórico";
 }
 
 function renderHistoryFilterOptions() {
