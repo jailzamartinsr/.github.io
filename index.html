@@ -147,15 +147,20 @@
         <section class="history">
           <div class="section-heading">
             <h2>Histórico</h2>
-            <button class="text-button" id="exportCsv" type="button">Exportar CSV</button>
+            <button class="text-button" id="toggleHistory" type="button" aria-expanded="false">Ver histórico</button>
           </div>
-          <label class="history-filter">
-            Buscar treino
-            <select id="historyFilter">
-              <option value="all">Todos os treinos</option>
-            </select>
-          </label>
-          <div id="historyList" class="history-list"></div>
+          <div class="history-content" id="historyContent" hidden>
+            <div class="history-toolbar">
+              <button class="text-button" id="exportCsv" type="button">Exportar CSV</button>
+            </div>
+            <label class="history-filter">
+              Buscar treino
+              <select id="historyFilter">
+                <option value="all">Todos os treinos</option>
+              </select>
+            </label>
+            <div id="historyList" class="history-list"></div>
+          </div>
         </section>
       </main>
     </div>

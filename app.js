@@ -87,6 +87,8 @@ const els = {
   saveSession: document.querySelector("#saveSession"),
   clearCurrent: document.querySelector("#clearCurrent"),
   exportDailyReport: document.querySelector("#exportDailyReport"),
+  toggleHistory: document.querySelector("#toggleHistory"),
+  historyContent: document.querySelector("#historyContent"),
   historyList: document.querySelector("#historyList"),
   historyFilter: document.querySelector("#historyFilter"),
   exportCsv: document.querySelector("#exportCsv"),
@@ -161,6 +163,7 @@ function bindEvents() {
   els.previousExercise.addEventListener("click", () => moveFocusExercise(-1));
   els.nextExercise.addEventListener("click", () => moveFocusExercise(1));
   els.exportDailyReport.addEventListener("click", exportDailyReport);
+  els.toggleHistory.addEventListener("click", toggleHistoryPanel);
   els.exportCsv.addEventListener("click", exportCsv);
   els.historyFilter.addEventListener("change", renderHistory);
   els.workoutChartSelect.addEventListener("change", renderVolumeChart);
@@ -466,6 +469,13 @@ function renderHistory() {
     item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteRecord(record.id));
     els.historyList.appendChild(item);
   });
+}
+
+function toggleHistoryPanel() {
+  const shouldOpen = els.historyContent.hidden;
+  els.historyContent.hidden = !shouldOpen;
+  els.toggleHistory.setAttribute("aria-expanded", String(shouldOpen));
+  els.toggleHistory.textContent = shouldOpen ? "Ocultar" : "Ver histórico";
 }
 
 function renderHistoryFilterOptions() {

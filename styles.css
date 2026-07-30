@@ -621,6 +621,25 @@ textarea:focus {
   padding: 12px;
 }
 
+.history .section-heading {
+  margin-bottom: 0;
+}
+
+.history-content {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.history-content[hidden] {
+  display: none;
+}
+
+.history-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .section-heading {
   display: flex;
   align-items: center;
@@ -636,7 +655,7 @@ textarea:focus {
 }
 
 .history-filter {
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
 .history-list {
