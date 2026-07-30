@@ -74,11 +74,8 @@ const els = {
   exerciseList: document.querySelector("#exerciseList"),
   sessionDate: document.querySelector("#sessionDate"),
   sessionFeeling: document.querySelector("#sessionFeeling"),
-  sessionNotes: document.querySelector("#sessionNotes"),
-  reportName: document.querySelector("#reportName"),
-  startTimeMetric: document.querySelector("#startTimeMetric"),
-  endTimeMetric: document.querySelector("#endTimeMetric"),
   durationMetric: document.querySelector("#durationMetric"),
+  timerStatus: document.querySelector("#timerStatus"),
   startWorkoutTimer: document.querySelector("#startWorkoutTimer"),
   finishWorkoutTimer: document.querySelector("#finishWorkoutTimer"),
   focusPanel: document.querySelector("#focusPanel"),
@@ -86,12 +83,12 @@ const els = {
   focusExerciseName: document.querySelector("#focusExerciseName"),
   previousExercise: document.querySelector("#previousExercise"),
   nextExercise: document.querySelector("#nextExercise"),
-  lastWorkoutName: document.querySelector("#lastWorkoutName"),
   nextWorkoutName: document.querySelector("#nextWorkoutName"),
   saveSession: document.querySelector("#saveSession"),
   clearCurrent: document.querySelector("#clearCurrent"),
   exportDailyReport: document.querySelector("#exportDailyReport"),
   historyList: document.querySelector("#historyList"),
+  historyFilter: document.querySelector("#historyFilter"),
   exportCsv: document.querySelector("#exportCsv"),
   volumeChart: document.querySelector("#volumeChart"),
   workoutChartSelect: document.querySelector("#workoutChartSelect"),
@@ -153,7 +150,7 @@ function bindEvents() {
     header.setAttribute("aria-expanded", String(!card.classList.contains("is-collapsed")));
   });
 
-  [els.sessionDate, els.sessionFeeling, els.sessionNotes, els.reportName].forEach((element) => {
+  [els.sessionDate, els.sessionFeeling].forEach((element) => {
     element.addEventListener("input", saveDraft);
   });
 
@@ -165,6 +162,7 @@ function bindEvents() {
   els.nextExercise.addEventListener("click", () => moveFocusExercise(1));
   els.exportDailyReport.addEventListener("click", exportDailyReport);
   els.exportCsv.addEventListener("click", exportCsv);
+  els.historyFilter.addEventListener("change", renderHistory);
   els.workoutChartSelect.addEventListener("change", renderVolumeChart);
   els.exerciseChartSelect.addEventListener("change", renderExerciseChart);
 
@@ -260,9 +258,8 @@ function moveFocusExercise(direction) {
 
 function renderTimer() {
   const { startedAt, endedAt } = state.sessionTiming;
-  els.startTimeMetric.textContent = startedAt ? formatTime(startedAt) : "-";
-  els.endTimeMetric.textContent = endedAt ? formatTime(endedAt) : "-";
   els.durationMetric.textContent = startedAt ? formatDuration(getSessionDurationMs()) : "00:00";
+  els.timerStatus.textContent = getTimerStatusText(startedAt, endedAt);
   els.startWorkoutTimer.textContent = startedAt && !endedAt ? "Reiniciar" : "Start treino";
   els.finishWorkoutTimer.disabled = !startedAt || Boolean(endedAt);
 
@@ -275,9 +272,10 @@ function renderFocusMode() {
   const isActive = Boolean(state.sessionTiming.startedAt) && !state.sessionTiming.endedAt;
   const exercises = WORKOUTS[state.workoutKey].exercises;
   const currentName = exercises[state.focusIndex] || exercises[0] || "-";
+  const workoutName = WORKOUTS[state.workoutKey].name;
 
   els.focusPanel.classList.toggle("is-hidden", !isActive);
-  els.focusCounter.textContent = `Exercício ${Math.min(state.focusIndex + 1, exercises.length)} de ${exercises.length}`;
+  els.focusCounter.textContent = `${workoutName} · Exercício ${Math.min(state.focusIndex + 1, exercises.length)} de ${exercises.length}`;
   els.focusExerciseName.textContent = currentName;
   els.previousExercise.disabled = state.focusIndex <= 0;
   els.nextExercise.disabled = state.focusIndex >= exercises.length - 1;
@@ -315,6 +313,12 @@ function getSessionDurationMs() {
   return Math.max(0, end.getTime() - new Date(startedAt).getTime());
 }
 
+function getTimerStatusText(startedAt, endedAt) {
+  if (!startedAt) return "Aguardando start";
+  if (endedAt) return `Início ${formatTime(startedAt)} · Fim ${formatTime(endedAt)}`;
+  return `Iniciado às ${formatTime(startedAt)}`;
+}
+
 function collectSession() {
   const exercises = [...els.exerciseList.querySelectorAll(".exercise-card")].map((card) => {
     const sets = SETS.map((set) => {
@@ -341,7 +345,7 @@ function collectSession() {
     workoutKey: state.workoutKey,
     workoutName: WORKOUTS[state.workoutKey].name,
     feeling: els.sessionFeeling.value,
-    notes: els.sessionNotes.value.trim(),
+    notes: "",
     exercises,
     startedAt: state.sessionTiming.startedAt,
     endedAt: state.sessionTiming.endedAt,
@@ -379,7 +383,6 @@ function clearCurrentScreen() {
   els.exerciseList.querySelectorAll("input").forEach((input) => {
     input.value = "";
   });
-  els.sessionNotes.value = "";
   els.sessionFeeling.value = "normal";
   state.sessionTiming = { startedAt: null, endedAt: null };
   state.focusIndex = 0;
@@ -399,7 +402,7 @@ function exportDailyReport() {
     return;
   }
 
-  const reportTitle = (els.reportName.value.trim() || `Relatório do treino - ${formatDate(reportDate)}`);
+  const reportTitle = `Relatório do treino - ${formatDate(reportDate)}`;
   const workbook = buildDailyReportWorkbookData(reportTitle, reportDate, sessions);
   const blob = createXlsxBlob(workbook);
   const url = URL.createObjectURL(blob);
@@ -427,13 +430,25 @@ function updateSummary() {
 }
 
 function renderHistory() {
+  renderHistoryFilterOptions();
+
   if (!state.records.length) {
     els.historyList.innerHTML = '<p class="empty-state">Nenhum treino salvo ainda.</p>';
     return;
   }
 
+  const selectedFilter = els.historyFilter.value || "all";
+  const visibleRecords = state.records.filter((record) => {
+    return selectedFilter === "all" || record.workoutName === selectedFilter;
+  });
+
+  if (!visibleRecords.length) {
+    els.historyList.innerHTML = '<p class="empty-state">Nenhum treino encontrado nesse filtro.</p>';
+    return;
+  }
+
   els.historyList.innerHTML = "";
-  state.records.slice(0, 12).forEach((record) => {
+  visibleRecords.slice(0, 12).forEach((record) => {
     const volume = calculateRecordVolume(record);
     const item = document.createElement("div");
     item.className = "history-item";
@@ -451,6 +466,27 @@ function renderHistory() {
     item.querySelector('[data-action="delete"]').addEventListener("click", () => deleteRecord(record.id));
     els.historyList.appendChild(item);
   });
+}
+
+function renderHistoryFilterOptions() {
+  if (!els.historyFilter) return;
+
+  const selected = els.historyFilter.value || "all";
+  const names = new Set(Object.values(WORKOUTS).map((workout) => workout.name));
+
+  state.records.forEach((record) => {
+    if (record.workoutName) names.add(record.workoutName);
+  });
+
+  els.historyFilter.innerHTML = '<option value="all">Todos os treinos</option>';
+  [...names].sort((a, b) => a.localeCompare(b, "pt-BR")).forEach((name) => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    els.historyFilter.appendChild(option);
+  });
+
+  els.historyFilter.value = selected === "all" || names.has(selected) ? selected : "all";
 }
 
 function renameRecord(id) {
@@ -491,7 +527,6 @@ function renderSequence() {
   const last = recent[0];
   const nextKey = last ? getNextWorkoutKey(last.workoutKey) : state.workoutKey;
 
-  els.lastWorkoutName.textContent = last ? `${last.workoutName} em ${formatDate(last.date)}` : "-";
   els.nextWorkoutName.textContent = WORKOUTS[nextKey]?.name || "-";
   renderWorkoutMarkers(last?.workoutKey);
 }
@@ -799,7 +834,6 @@ function buildDailyReportWorkbook(reportTitle, reportDate, sessions) {
       <td>${escapeHtml(session.workoutName)}</td>
       <td>${escapeHtml(session.feeling)}</td>
       <td>${formatCellNumber(calculateRecordVolume(session))}</td>
-      <td>${escapeHtml(session.notes || "")}</td>
     </tr>
   `).join("");
 
@@ -813,9 +847,9 @@ function buildDailyReportWorkbook(reportTitle, reportDate, sessions) {
       h2 { font-size: 16px; margin: 22px 0 8px; }
       .meta { color: #667085; margin-bottom: 14px; }
       table { border-collapse: collapse; width: 100%; margin-bottom: 18px; }
-      th { background: #0f766e; color: #ffffff; font-weight: 700; }
+      th { background: #f97316; color: #ffffff; font-weight: 700; }
       th, td { border: 1px solid #d8dee8; padding: 8px; text-align: left; }
-      .summary th { background: #172033; }
+      .summary th { background: #171717; }
       .number { text-align: right; }
     </style>
   </head>
@@ -846,7 +880,6 @@ function buildDailyReportWorkbook(reportTitle, reportDate, sessions) {
         <th>Treino</th>
         <th>Sensação</th>
         <th>Volume</th>
-        <th>Observação</th>
       </tr>
       ${sessionRows}
     </table>
@@ -893,7 +926,7 @@ function buildDailyReportWorkbookData(reportTitle, reportDate, sessions) {
   ];
 
   const treinoRows = [
-    ["Data", "Treino", "Sensação", "Início", "Fim", "Duração", "Volume kg", "Observação"],
+    ["Data", "Treino", "Sensação", "Início", "Fim", "Duração", "Volume kg"],
     ...sessions.map((session) => [
       formatDate(session.date),
       session.workoutName,
@@ -902,7 +935,6 @@ function buildDailyReportWorkbookData(reportTitle, reportDate, sessions) {
       session.endedAt ? formatTime(session.endedAt) : "",
       session.durationSeconds ? formatDuration(session.durationSeconds * 1000) : "",
       calculateRecordVolume(session),
-      session.notes || "",
     ]),
   ];
 
@@ -1169,7 +1201,6 @@ function trimSheetName(value) {
 
 function saveDraft() {
   const draft = collectSession();
-  draft.reportName = els.reportName.value.trim();
   draft.focusIndex = state.focusIndex;
   draft.sessionTiming = state.sessionTiming;
   localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
@@ -1189,8 +1220,6 @@ function loadDraft() {
     }
     els.sessionDate.value = draft.date || today();
     els.sessionFeeling.value = draft.feeling || "normal";
-    els.sessionNotes.value = draft.notes || "";
-    els.reportName.value = draft.reportName || "";
     state.focusIndex = Number.isInteger(draft.focusIndex) ? draft.focusIndex : 0;
     state.sessionTiming = draft.sessionTiming || { startedAt: null, endedAt: null };
   } catch {

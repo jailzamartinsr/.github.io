@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#111827">
+    <meta name="theme-color" content="#050505">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Treino">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -34,10 +34,6 @@
         <section class="sequence-panel" aria-label="Sequencia dos treinos">
           <div class="sequence-status">
             <div>
-              <span class="metric-label">Ultimo treino</span>
-              <strong id="lastWorkoutName">-</strong>
-            </div>
-            <div>
               <span class="metric-label">Proximo sugerido</span>
               <strong id="nextWorkoutName">-</strong>
             </div>
@@ -59,14 +55,6 @@
               </select>
             </label>
           </div>
-          <label class="wide-label">
-            Observação do treino
-            <textarea id="sessionNotes" rows="2" placeholder="Sono, dor, energia, algo diferente..."></textarea>
-          </label>
-          <label class="wide-label">
-            Nome do relatório
-            <input id="reportName" type="text" placeholder="Relatório do treino do dia">
-          </label>
         </section>
 
         <section class="guidance" aria-label="Orientações">
@@ -81,19 +69,10 @@
         </section>
 
         <section class="timer-panel" aria-label="Tempo do treino">
-          <div class="timer-grid">
-            <div>
-              <span class="metric-label">Início</span>
-              <strong id="startTimeMetric">-</strong>
-            </div>
-            <div>
-              <span class="metric-label">Fim</span>
-              <strong id="endTimeMetric">-</strong>
-            </div>
-            <div>
-              <span class="metric-label">Tempo</span>
-              <strong id="durationMetric">00:00</strong>
-            </div>
+          <div class="timer-single">
+            <span class="metric-label">Temporizador</span>
+            <strong id="durationMetric">00:00</strong>
+            <small id="timerStatus">Aguardando start</small>
           </div>
           <div class="timer-actions">
             <button class="primary" id="startWorkoutTimer" type="button">Start treino</button>
@@ -170,6 +149,12 @@
             <h2>Histórico</h2>
             <button class="text-button" id="exportCsv" type="button">Exportar CSV</button>
           </div>
+          <label class="history-filter">
+            Buscar treino
+            <select id="historyFilter">
+              <option value="all">Todos os treinos</option>
+            </select>
+          </label>
           <div id="historyList" class="history-list"></div>
         </section>
       </main>

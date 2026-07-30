@@ -26,7 +26,7 @@ O app usa o histórico salvo no navegador para mostrar:
 
 ## Relatório do dia
 
-O botão `Relatório do dia` exporta uma planilha `.xlsx` apenas com a data selecionada no app. O nome do arquivo pode ser editado no campo `Nome do relatório`.
+O botão `Relatório do dia` exporta uma planilha `.xlsx` apenas com a data selecionada no app, usando um nome automático com a data do treino.
 
 ## Modo treino
 

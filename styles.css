@@ -1,15 +1,15 @@
 :root {
-  color-scheme: light;
-  --ink: #172033;
-  --muted: #667085;
-  --line: #d8dee8;
-  --panel: #ffffff;
-  --soft: #f4f7fb;
-  --accent: #0f766e;
-  --accent-strong: #115e59;
-  --warn: #a15c07;
-  --danger: #b42318;
-  --shadow: 0 14px 40px rgba(16, 24, 40, 0.09);
+  color-scheme: dark;
+  --ink: #f8fafc;
+  --muted: #a7adba;
+  --line: #2d323d;
+  --panel: #121212;
+  --soft: #1d1d20;
+  --accent: #f97316;
+  --accent-strong: #fb923c;
+  --warn: #facc15;
+  --danger: #ef4444;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
 }
 
 * {
@@ -20,7 +20,9 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
-  background: linear-gradient(180deg, #edf3f8 0%, #f9fafb 44%, #eef2f6 100%);
+  background:
+    radial-gradient(circle at top left, rgba(249, 115, 22, 0.28), transparent 34%),
+    linear-gradient(180deg, #171717 0%, #0a0a0a 58%, #050505 100%);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   letter-spacing: 0;
@@ -110,7 +112,7 @@ h2 {
 }
 
 .chip {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(18, 18, 18, 0.92);
   color: var(--muted);
   font-size: 0.9rem;
   font-weight: 800;
@@ -118,13 +120,13 @@ h2 {
 
 .chip.is-active {
   border-color: var(--accent);
-  background: var(--accent);
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
   color: white;
 }
 
 .chip.is-last-done {
-  border-color: rgba(15, 118, 110, 0.45);
-  box-shadow: inset 0 -3px 0 rgba(15, 118, 110, 0.25);
+  border-color: rgba(249, 115, 22, 0.55);
+  box-shadow: inset 0 -3px 0 rgba(249, 115, 22, 0.26);
 }
 
 .chip.is-last-done::after {
@@ -150,7 +152,7 @@ h2 {
 .history {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(18, 18, 18, 0.92);
   box-shadow: var(--shadow);
 }
 
@@ -161,9 +163,8 @@ h2 {
 
 .sequence-status {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
-  margin-bottom: 10px;
 }
 
 .sequence-status div {
@@ -172,7 +173,7 @@ h2 {
   gap: 4px;
   padding: 10px;
   border-radius: 8px;
-  background: var(--soft);
+  background: linear-gradient(180deg, #1f1f23 0%, #151518 100%);
 }
 
 .sequence-status strong {
@@ -204,7 +205,7 @@ textarea {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfdff;
+  background: #0b0b0d;
   color: var(--ink);
   outline: none;
 }
@@ -225,7 +226,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
 }
 
 .wide-label {
@@ -262,24 +263,26 @@ textarea:focus {
   padding: 12px;
 }
 
-.timer-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.timer-grid div {
+.timer-single {
   display: grid;
   gap: 4px;
   min-width: 0;
-  padding: 10px;
+  padding: 14px;
   border-radius: 8px;
-  background: var(--soft);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(220, 38, 38, 0.12));
+  text-align: center;
 }
 
-.timer-grid strong {
+.timer-single strong {
   overflow-wrap: anywhere;
-  font-size: 1rem;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.timer-single small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .timer-actions {
@@ -443,14 +446,14 @@ textarea:focus {
 
 .primary {
   border-color: var(--accent);
-  background: var(--accent);
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
   color: white;
   font-weight: 900;
 }
 
 .secondary,
 .text-button {
-  background: var(--panel);
+  background: #151515;
   color: var(--accent-strong);
   font-weight: 850;
 }
@@ -467,7 +470,7 @@ textarea:focus {
   gap: 4px;
   min-width: 0;
   padding: 12px 8px;
-  background: rgba(244, 247, 251, 0.78);
+  background: rgba(29, 29, 32, 0.82);
 }
 
 .metric-label {
@@ -492,7 +495,7 @@ textarea:focus {
 .chart-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(18, 18, 18, 0.92);
   box-shadow: var(--shadow);
   padding: 12px;
 }
@@ -555,7 +558,7 @@ textarea:focus {
   min-height: 4px;
   height: var(--bar-height);
   border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, #14b8a6 0%, #0f766e 100%);
+  background: linear-gradient(180deg, #fb923c 0%, #dc2626 100%);
 }
 
 .bar-label,
@@ -580,7 +583,7 @@ textarea:focus {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfdff;
+  background: #0b0b0d;
 }
 
 .line-chart svg {
@@ -591,7 +594,7 @@ textarea:focus {
 }
 
 .line-grid {
-  stroke: #e7ecf3;
+  stroke: #27272a;
   stroke-width: 1;
 }
 
@@ -604,11 +607,11 @@ textarea:focus {
 }
 
 .line-area {
-  fill: rgba(20, 184, 166, 0.13);
+  fill: rgba(249, 115, 22, 0.16);
 }
 
 .line-point {
-  fill: #ffffff;
+  fill: #0b0b0d;
   stroke: var(--accent-strong);
   stroke-width: 3;
 }
@@ -632,6 +635,10 @@ textarea:focus {
   font-size: 0.84rem;
 }
 
+.history-filter {
+  margin-bottom: 10px;
+}
+
 .history-list {
   display: grid;
   gap: 8px;
@@ -645,7 +652,7 @@ textarea:focus {
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfdff;
+  background: #0b0b0d;
 }
 
 .history-actions {
@@ -667,9 +674,9 @@ textarea:focus {
 .danger {
   min-width: 38px;
   min-height: 38px;
-  border: 1px solid rgba(180, 35, 24, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.28);
   border-radius: 8px;
-  background: #fff5f4;
+  background: rgba(239, 68, 68, 0.12);
   color: var(--danger);
   font-weight: 900;
 }
@@ -678,7 +685,7 @@ textarea:focus {
   min-height: 38px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--panel);
+  background: #151515;
   color: var(--accent-strong);
   font-size: 0.78rem;
   font-weight: 850;
@@ -702,7 +709,6 @@ textarea:focus {
 
   .session-meta,
   .sequence-status,
-  .timer-grid,
   .timer-actions,
   .actions,
   .summary-panel {
